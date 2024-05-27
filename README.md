@@ -13,34 +13,34 @@
 - Hypervisor: Daemon which runs and maintain multiple VMs
 
 ## DOCKER COMMANDS
-| COMMAND                                                                   | EFFECT |
-|---------------------------------------------------------------------------|--------|
-| `docker run IMAGE_NAME`                                                   |        |
-| `docker run -d IMAGE_NAME`                                                |        |
-| `docker run IMAGE_NAME [COMMANDS]`                                        |        |
-| `docker run -it IMAGE_NAME [COMMAND]`                                     | interactive pseudo terminal mode       |
-| `docker run -e VAR=VAL IMAGE`                                             |        |
-| `docker run --name=CONTAINER_NAME IMAGE_NAME`                             |        |
-| `docker run -v VOLUME_NAME:/path/in/container`                            | mounting volume       |
-| `docker run IMAGE --network=NETWORK_NAME`                                 |        |
-| `docker kill CONTAINER_ID`                                                |        |
-| `docker kill $(docker ps -aq)`                                            |        |
-| `docker attach CONTAINER_ID`                                              |        |
-| `docker ps`                                                               |        |
-| `docker ps -a`                                                            |        |
-| `docker stop CONTAINER_ID`                                                |        |
-| `docker rm CONTAINER_ID`                                                  |        |
-| `docker rm $(docker ps -aq)`                                              |        |
-| `docker images`                                                           |        |
-| `docker inspect CONTAINER_ID`                                             |        |
-| `docker logs CONTAINER_ID`                                                |        |
-| `docker rmi IMAGE_ID`                                                     |        |
-| `docker pull IMAGE_ID`                                                    |        |
-| `docker exec CONTAINER_ID COMMANDS`                                       |        |
-| `docker build -t repo/image:tag .`                                        |        |
-| `docker volume create VOLUME_NAME`                                        |        |
-| `docker network create --driver=DRIVER --subnet SUBNET_CIDR NETWORK_NAME` |        |
-| `docker network ls`                                                       |        |
+| COMMAND                                                                   | EFFECT                                                |
+|---------------------------------------------------------------------------|-------------------------------------------------------|
+| `docker run IMAGE_NAME`                                                   | Run a container                                       |
+| `docker run -d IMAGE_NAME`                                                | Run in detached mode                                  |
+| `docker run IMAGE_NAME [COMMANDS]`                                        | Run a command in a container                          |
+| `docker run -it IMAGE_NAME [COMMAND]`                                     | Interactive pseudo terminal mode                      |
+| `docker run -e VAR=VAL IMAGE`                                             | Pass env var to container                             |
+| `docker run --name=CONTAINER_NAME IMAGE_NAME`                             | Give name to container                                |
+| `docker run -v VOLUME_NAME:/path/in/container`                            | Mount a volume                                        |
+| `docker run IMAGE --network=NETWORK_NAME`                                 | Specify network to attach for container               |
+| `docker kill CONTAINER_ID`                                                | Kill a container                                      |
+| `docker kill $(docker ps -aq)`                                            | Kill all containers                                   |
+| `docker attach CONTAINER_ID`                                              | Attach to a detached container                        |
+| `docker ps`                                                               | List all running containers                           |
+| `docker ps -a`                                                            | List all containers (even the stopped or exited ones) |
+| `docker stop CONTAINER_ID`                                                | Stop a container                                      |
+| `docker rm CONTAINER_ID`                                                  | Remove container                                      |
+| `docker rm $(docker ps -aq)`                                              | Remove all containers                                 |
+| `docker images`                                                           | List all images                                       |
+| `docker inspect CONTAINER_ID`                                             | Inspect container properties                          |
+| `docker logs CONTAINER_ID`                                                | Get logs for container                                |
+| `docker rmi IMAGE_ID`                                                     | Remove image                                          |
+| `docker pull IMAGE_ID`                                                    | Pull image from remote repository                     |
+| `docker exec CONTAINER_ID COMMANDS`                                       | Execute a command in a running container              |
+| `docker build -t repo/image:tag .`                                        | Build a image with image and tag                      |
+| `docker volume create VOLUME_NAME`                                        | Create a volume                                       |
+| `docker network create --driver=DRIVER --subnet SUBNET_CIDR NETWORK_NAME` | Create a network                                      |
+| `docker network ls`                                                       | Show available networks                               |
 
 * Port mapping: HOST_PORT:CONTAINER_PORT
 * Docker volume
