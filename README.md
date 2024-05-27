@@ -4,7 +4,7 @@
 * Docker is a set of platform as a service products that use OS-level virtualization to deliver software in packages called containers
 ### PROBLEMS FACED
 - Compatibility with os, between apps (matrix from hell)
-- long setup time
+- Long setup time
 ### SOLUTION
 - **Containers**
     - Isolated runtime environment (LXC, LXD, LXCFS), Docker uses LXC
