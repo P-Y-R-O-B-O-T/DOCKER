@@ -175,7 +175,7 @@ docker push PRIVATE_REGISTRY_URL/IMAGE_NAME
 
 | COMMAND                                               | EFFECT                                                          |
 |-------------------------------------------------------|-----------------------------------------------------------------|
-| `docker swarm init --advertise-addr`                  | Run on master node to initialize cluster                        |
+| `docker swarm init --advertise-addr ADVERTISE_ADDR`   | Run on master node to initialize cluster                        |
 | `docker swarm join --token JOIN_TOKEN IP`             | Join a swarm using the token                                    |
 | `docker node update --availability AVAILABILITY NODE` | Set availability of node                                        |
 | `docker swarm leave`                                  | Run on the node that should leave the swarm                     |
@@ -183,3 +183,60 @@ docker push PRIVATE_REGISTRY_URL/IMAGE_NAME
 | `docker swarm join-token manager`                     | Get join token for new manager nodes                            |
 | `docker swarm join-token worker`                      | Get join token for new worker nodes                             |
 | `docker node promote NODE_ID`                         | Promote a worker to a manager node                              |
+| `docker node ls`                                      | List all nodes in docker swarm                                  |
+
+### DOCKER SERVICE
+* We can specify number of replicas
+* Part of swarm orchestration
+* We do not need to run images manually on all nodes
+* If a image fails, the manager node detect it and creates a new one to repacee the failed one
+* Services can be `replicated` and `golbal`, global mode is suitable for monitoring agent and logging agent or a caching service
+* By default docker gives a funny name to all its containers but in case of swarm mode the names are like `NAME.1, NAME.2, NAME.3` this convention is for avoiding same name on the network and environment
+
+| COMMAND                                                                                                                    | EFFECT                                                               |
+|----------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| `docker service create --replicas=NUMBER -p HOST_PORT:CONTAINER_PORT -e VAR=VAL --network N1 N2 --name=SERVICE_NAME IMAGE` | Creates a service with replicas, port mapping and networks specified |
+| `docker serivce update --replicas=NUMBER SERVICE_NAME`                                                                     | Scale a service                                                      |
+| `docker service ls`                                                                                                        | List services that are active                                        |
+| `docker service ps SERVICE_ID`                                                                                             | List active containers info for that service                         |
+| `docker service update SERVICE_ID --publish-add HOST_PORT:CONTAINER_PORT`                                                  | Add a publishing port to service                                     |
+| `docker service rm SERVICE_ID`                                                                                             | Remove a service                                                     |
+| `docker network create --driver overlay --subnet SUBNET_CIDR NETWORK_NAME`                                                 | Create a overlay network, run on manager node                        |
+
+### OVERLAY NETWORKING
+* Allows containers to comminicate with each other over different hosts and work together
+* When we create a swarm, it also creates a ingress network
+> Ingress allows to accept connections from outside in a dynamic and configurable manner.
+> Ingress network has a builtin load balancer that redirects traffic to published ports from all nodes to all nodes to all mapped ports on each container
+* It also uses the embedded or builtin docker DNS
+
+### STACKS
+* Similar to services, but we dont have to run each service by hand, we can define a yaml file
+* There are deploy parameters that we can define like `replicas`, `placement:constraints`, `resources` etc etc
+* There a re mainly 3 levels `stack > service > container`
+
+| COMMAND                                                   | EFFECT                                                          |
+|-----------------------------------------------------------|-----------------------------------------------------------------|
+| `docker stack deploy STACK_NAME --compose-file FILE_PATH` | Deploys services defined in compose file or update existing one |
+
+
+### CI/CD
+* CI/CD or CICD is the combined practices of continuous integration and continuous delivery or, less often, continuous deployment. They are sometimes referred to collectively as continuous development or continuous software development
+
+* **STEPS**
+    - Code repo has dockerfile
+    - Buildsystems like GitHub Actions or Jenkins build image and tags it witha version number
+    - Then the testing frameworks test the app and go for rigerous functionality testing in testing env
+    - Then the image is published to docker registry or private registry
+
+### DOCKER REGISTRY
+* Once an image has been built, we can push it to registry (docker hub or private)
+* All images in self hosted registry are stored in `/var/lib/registry/docker/registry/vx/repositories`
+* Use `konradkleine/docker-registry-frontend:v2` for graphical registry management through browser
+
+| COMMAND                                                                | EFFECT                      |
+|------------------------------------------------------------------------|-----------------------------|
+| `docker run -d -p 5000:5000 registry:2`                                | Host docker registry        |
+| `docker build . -t ACCOUNT_CONTEXT_NAME/IMAGE_NAME:TAG`                | Build image and then tag it |
+| `docker tag IMAGE_NAME REGISTRY_IP_HOSTNAME/IMAGE_NAME`                | Tag esisting image          |
+| `docker push REGISTRY_IP_HOSTNAME/ACCOUNT_CONTEXT_NAME/IMAGE_NAME/TAG` | Push the image to registry  |
