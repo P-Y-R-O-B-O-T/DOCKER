@@ -18,6 +18,7 @@
 > Unix sockets are only accessable on same machine, they can not beaccessed from other machine
 
 | COMMAND | EFFECT |
+| ------- | ------ |
 | `systemctl start docker` | Start docker service daemon |
 | `dockerd --debug` | Run docker daemon in foreground debug mode in case it does not work properly |
 | `dockerd --host=tcp://SELF_INTERFACE_IP:2375` | Allow docker daemon to listen on TCP port for commands from other machine |
