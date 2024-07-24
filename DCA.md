@@ -22,7 +22,7 @@
 | `systemctl start docker` | Start docker service daemon |
 | `dockerd --debug` | Run docker daemon in foreground debug mode in case it does not work properly |
 | `dockerd --host=tcp://SELF_INTERFACE_IP:2375` | Allow docker daemon to listen on TCP port for commands from other machine |
-| `dockerd --host=tcp://SELF_INTERFACE_IP:2376 --tls=true --tlscert=TLS_CERT_PATH --tlskey=TLS_KEY_PATH`
+| `dockerd --host=tcp://SELF_INTERFACE_IP:2376 --tls=true --tlscert=TLS_CERT_PATH --tlskey=TLS_KEY_PATH` | Securely listen on docker daemon |
 | `export DOCKER_HOST="IP"` | Set IP of machine whose docker daemon we want to access, after doing this, all commands will run on the machine whose IP we provided |
 
 > [!TIP]
