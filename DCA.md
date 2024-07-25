@@ -67,7 +67,7 @@
 
 ## LOGGING DRIVERS
 * Default logging driver for docker is `json-file`
-
+* We can change the logging driver by either passing parameter and by editing `/etc/docker/daemon.json`
 | COMMAND | EFFECT |
 | ------- | ------ |
 | `docker logs CONTAINER_ID` | See logs for container |
@@ -75,7 +75,7 @@
 | `cat /var/lib/docker/CONTAINER_ID` | See container logs in json format |
 
 ### CHANGE LOGGING DRIVER TO AWS
-* Add the following lines to `/etc/docker/daemon.sock`
+* Add the following lines to `/etc/docker/daemon.json`
 ```
 "log-driver": "awslogs",
 "log-opt": {
