@@ -37,7 +37,6 @@
 | `docker container unpause CONTAINER_ID` | Resume a paused container |
 | `docker container stop CONTAINER_ID` | Tries to kill the container gracefully, but if container does not quit, it force kills it (like but not SIGTERM, SIGKILL) |
 | `docker container kill --signal=SIGNAL CONTAINER_ID` | We can kill docker containers like the normal kill command |
-| `docker system events --since TIME` | See docker events and TIME format is `NUMBER_HOURS`, `NUMBER_MINUTES` |
 | `docker stop CONTAINER_ID`                                                | Stop a container                                                              |
 | `docker rm CONTAINER_ID`                                                  | Remove container                                                              |
 | `docker images`                                                           | List all images                                                               |
@@ -51,6 +50,7 @@
 | `docker network create --driver=DRIVER --subnet SUBNET_CIDR NETWORK_NAME` | Create a network                                                              |
 | `docker network ls`                                                       | Show available networks                                                       |
 | `docker system df`                                                        | Show disk usage for docker images, containers and volumes                     |
+| `docker system events --since TIME` | See docker events and TIME format is `NUMBER_HOURS`, `NUMBER_MINUTES` |
 
 > [!TIP]
 > When we are connected to a container in interactive mode and we want to exit but keep the container running in background, we can do so by `<ctrl>+<p>+<q>`
@@ -67,6 +67,7 @@
 > [!TIP]
 > * Rename containers: `docker container rename OLD_NAME NEW_NAME`
 > * Give hostname to a container using `--hostname=HOST_NAME` while running the container
+> * Two or more containers can have same hostname but container name should be unique
 
 > [!IMPORTANT]
 > * Restart policy can be assigned while running containers using `--restart=RESTART_POLICY`
@@ -75,11 +76,11 @@
 > [!IMPORTANT]
 > * While mapping ports, be careful about the format `HOST_PORT_PUBLISH_PORT:CONTAINER_PORT`
 > * The `HOST_PORT` is used when using docker in single machine, `PUBLISH_PORT` is user while using in swarm and they must be free when we assign them
->
 > * A computer have multiple IP addresses as it is connected to multiple networks and if we choose to expose the docker service to only one IP and network, we can do it by `IP:HOST_PORT_PUBLISH_PORT:CONTAINER_PORT`
 > * If we do not define a expose or publish port, a random port is assigned from the range [32768, 60999] and this setting is stored at `/proc/sys/net/ipv4/ip_local_port_range`
 > * If we pass no ports and pass `-P` parameter, the `EXPOSE_PORT` defined in the image file through `Dockerfile` is exposed to host
 > * To see exposed ports by a container see expose ports section in docker inspect output
+> * All this process of port publishing depends on `iptables`
 
 ## DOCKER IMAGES
 * Creation: `Dockerfile`

@@ -12,7 +12,7 @@
 
 ## DOCKER SERVICE CONFIGURATION
 > [!TIP]
-> Docker listend on a internal unix socket at `/var/run/docker.sock` for IPC
+> Docker listend on a internal unix socket at `/var/run/docker.sock` or `unix:///var/run/docker.sock` for IPC
 
 > [!IMPORTANT]
 > Unix sockets are only accessable on same machine, they can not beaccessed from other machine
@@ -53,3 +53,43 @@
 > [!important]
 > All image, container, networking related files are stored at `/var/lib/docker/`
 
+> [!CAUTION]
+> ## TROUBLESHOOT DOCKER DAEMON
+> * Error: `Cannot connect to docker daemon at unix:///var/run/docker.sock`
+> * If accessing docker daemon on remote machine, check for IP and ports and encryption parameters
+> * Check `/etc/docker/daemon.json`
+> * Check is free space is available on host: `df -h`
+> * Prune all containers: `docker container prune`
+> * Restart docker service: `systemctl status docker` and `systemctl start docker`
+> * Add debug parameters in `/etc/docker/daemon.json` as `"debug": true` and reload docker service
+> * Get info and logs after the daemon started: `docker system info` `docker system events`
+> * Get more detailed logs: `tail -50 /var/log/messages`
+
+## LOGGING DRIVERS
+* Default logging driver for docker is `json-file`
+
+| COMMAND | EFFECT |
+| ------- | ------ |
+| `docker logs CONTAINER_ID` | See logs for container |
+| `docker system info` | Get config |
+| `cat /var/lib/docker/CONTAINER_ID` | See container logs in json format |
+
+### CHANGE LOGGING DRIVER TO AWS
+* Add the following lines to `/etc/docker/daemon.sock`
+```
+"log-driver": "awslogs",
+"log-opt": {
+    "awslogs-region": "AWS_REGION"
+}
+```
+* For these to work, we need to export AWS credentials, run the following in shell
+```
+export AWS_ACCESS_KEY_ID=KEY_ID
+export AWS_SECRET_ACCESS_KEY=SECRET_KEY
+export AWS_SESSION_TOKEN=SESSION_TOKEN
+```
+* We can specify driver for container while running it with `--log-driver DRIVER_NAME`
+* We can also definee these properties in a compose file for each service
+
+> [!TIP]
+> * For custom logging goto `docs.docker.com/config/containers/logging/` for customizing the default logging options
