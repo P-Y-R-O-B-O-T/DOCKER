@@ -68,6 +68,7 @@
 ## LOGGING DRIVERS
 * Default logging driver for docker is `json-file`
 * We can change the logging driver by either passing parameter and by editing `/etc/docker/daemon.json`
+
 | COMMAND | EFFECT |
 | ------- | ------ |
 | `docker logs CONTAINER_ID` | See logs for container |
