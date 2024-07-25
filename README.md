@@ -72,7 +72,7 @@
 > * Restart policy can be assigned while running containers using `--restart=RESTART_POLICY`
 > * Restart policies are: `no`, `on-failure`, `always`, `unless-stopped`
 
-> [!IMPORTANT] HUHU
+> [!important] HUHU
 > * While mapping ports, be careful about the format `HOST_PORT_PUBLISH_PORT:CONTAINER_PORT`
 > * The `HOST_PORT` is used when using docker in single machine, `PUBLISH_PORT` is user while using in swarm and they must be free when we assign them
 >
