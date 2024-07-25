@@ -92,4 +92,5 @@ export AWS_SESSION_TOKEN=SESSION_TOKEN
 * We can also definee these properties in a compose file for each service
 
 > [!TIP]
+> ### CUSTOM LOGGING
 > * For custom logging goto `docs.docker.com/config/containers/logging/` for customizing the default logging options
