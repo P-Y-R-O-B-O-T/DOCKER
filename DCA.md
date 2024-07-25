@@ -46,3 +46,10 @@
 > } 
 > ```
 > Note that the `hosts` property is a array of multiple listeners
+
+> [!TIP]
+> * Sometimes a docker daemon may stop working and this brings all the containers down too, to avoid this and keep containers running even if daemon is not running add `"live-restore": true` in `/etc/docker/daemon.json`
+
+> [!important]
+> All image, container, networking related files are stored at `/var/lib/docker/`
+

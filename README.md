@@ -14,6 +14,7 @@
 - Hypervisor: Daemon which runs and maintain multiple VMs
 
 ### DOCKER COMMANDS
+
 | COMMAND                                                                   | EFFECT                                                                        |
 |---------------------------------------------------------------------------|-------------------------------------------------------------------------------|
 | `docker run IMAGE_NAME`                                                   | Run a container                                                               |
@@ -25,13 +26,20 @@
 | `docker run -v VOLUME_NAME:/path/in/container`                            | Mount a volume                                                                |
 | `docker run IMAGE --network=NETWORK_NAME`                                 | Specify network to attach for container                                       |
 | `docker kill CONTAINER_ID`                                                | Kill a container                                                              |
-| `docker kill $(docker ps -aq)`                                            | Kill all containers                                                           |
 | `docker attach CONTAINER_ID`                                              | Attach to a detached container                                                |
 | `docker ps`                                                               | List all running containers                                                   |
 | `docker ps -a`                                                            | List all containers (even the stopped or exited ones)                         |
+| `docker container stats` | See resource usage for all docker containers |
+| `docker container top CONTAINER_ID` | See the processes and their behaviour in container |
+| `docker container logs CONTAINER_ID` | Get container logs |
+| `docker container logs -f CONTAINER_ID` | Watch realtime logs for containers |
+| `docker container pause CONTAINER_ID` | Pauses the container in the same state |
+| `docker container unpause CONTAINER_ID` | Resume a paused container |
+| `docker container stop CONTAINER_ID` | Tries to kill the container gracefully, but if container does not quit, it force kills it (like but not SIGTERM, SIGKILL) |
+| `docker container kill --signal=SIGNAL CONTAINER_ID` | We can kill docker containers like the normal kill command |
+| `docker system events --since TIME` | See docker events and TIME format is `NUMBER_HOURS`, `NUMBER_MINUTES` |
 | `docker stop CONTAINER_ID`                                                | Stop a container                                                              |
 | `docker rm CONTAINER_ID`                                                  | Remove container                                                              |
-| `docker rm $(docker ps -aq)`                                              | Remove all containers                                                         |
 | `docker images`                                                           | List all images                                                               |
 | `docker inspect CONTAINER_ID`                                             | Inspect container properties                                                  |
 | `docker logs CONTAINER_ID`                                                | Get logs for container                                                        |
@@ -43,8 +51,35 @@
 | `docker network create --driver=DRIVER --subnet SUBNET_CIDR NETWORK_NAME` | Create a network                                                              |
 | `docker network ls`                                                       | Show available networks                                                       |
 | `docker system df`                                                        | Show disk usage for docker images, containers and volumes                     |
-* Port mapping: HOST_PORT:CONTAINER_PORT
-* Docker volume
+
+> [!TIP]
+> When we are connected to a container in interactive mode and we want to exit but keep the container running in background, we can do so by `<ctrl>+<p>+<q>`
+
+> [!TIP]
+> * Kill all containers: `docker kill $(docker ps -aq)`
+> * Remove all containers: `docker container rm $(docker container ls -aq)`
+> * Remove all volumes: `docker volume rm $(docker volume ls -q)`
+
+> [!tip]
+> * Remove a all docker stopped containers and reclaim space: `docker container prune`
+> * We can also make a container autoremove itself after exiting with the `--rm` flag in docker run command
+
+> [!TIP]
+> * Rename containers: `docker container rename OLD_NAME NEW_NAME`
+> * Give hostname to a container using `--hostname=HOST_NAME` while running the container
+
+> [!IMPORTANT]
+> * Restart policy can be assigned while running containers using `--restart=RESTART_POLICY`
+> * Restart policies are: `no`, `on-failure`, `always`, `unless-stopped`
+
+> [!IMPORTANT]
+> * While mapping ports, be careful about the format `HOST_PORT_PUBLISH_PORT:CONTAINER_PORT`
+> * The `HOST_PORT` is used when using docker in single machine, `PUBLISH_PORT` is user while using in swarm and they must be free when we assign them
+>
+> * A computer have multiple IP addresses as it is connected to multiple networks and if we choose to expose the docker service to only one IP and network, we can do it by `IP:HOST_PORT_PUBLISH_PORT:CONTAINER_PORT`
+> * If we do not define a expose or publish port, a random port is assigned from the range [32768, 60999] and this setting is stored at `/proc/sys/net/ipv4/ip_local_port_range`
+> * If we pass no ports and pass `-P` parameter, the `EXPOSE_PORT` defined in the image file through `Dockerfile` is exposed to host
+> * To see exposed ports by a container see expose ports section in docker inspect output
 
 ## DOCKER IMAGES
 * Creation: `Dockerfile`
