@@ -1,4 +1,4 @@
-# DOCKER
+## DOCKER
 * Docker is a set of platform as a service products that use OS-level virtualization to deliver software in packages called containers
 
 ### PROBLEMS FACED
@@ -13,7 +13,7 @@
     - Docker uses kernel of ubderlying host (kernel sharing)
 - Hypervisor: Daemon which runs and maintain multiple VMs
 
-### DOCKER COMMANDS
+## DOCKER COMMANDS
 
 | COMMAND                                                                   | EFFECT                                                                        |
 |---------------------------------------------------------------------------|-------------------------------------------------------------------------------|
@@ -107,7 +107,7 @@ ENTRYPOINT ["sleep"]
 CMD ["5"]
 ```
 
-### DOCKER ENGINE
+## DOCKER ENGINE
 * Docker engine is considered as host with docker installed on it
 * `Docker CLI <-> REST API <-> Docker Deamon`
 * We can access remote docker like docker -H=IP_HOSTNAME:2375 DOCKER_COMMAND
@@ -130,7 +130,7 @@ docker exec CONTAINER_ID ps -eaf
 ps -eaf | grep COMMAND
 ```
 
-### DOCKER STORAGE
+## DOCKER STORAGE
 * `/var/lib/docker/` is the path for docker data like image data, container data etc
 * Docker images are in layered arcitecture
 * Copy-On-Write mechanish for layers
@@ -146,14 +146,14 @@ ps -eaf | grep COMMAND
 * While recreating a layer if one layer hanges, then the layers after that layer are recreated too as we can't be sure that the rest layers will be the same
 
 
-### DOCKER NETWORKING
+## DOCKER NETWORKING
 * Default networks are: `bridge`, `none` and `host`
 * Default CIDR for docker networks is `172.17.0.0/16`
 * If we specify `--network=host` we can directly access the app on the host system on the same port that app is running in the container
 * If we specify `--network=none` thwy do not get attached to any network
 * All docker containers can resolve each other using the container names, docker has builtin DNS.
 
-### DOCKER REGISTRY
+## DOCKER REGISTRY
 * A central repository for docker containers
 * Images are pulled from here by default
 * We can also host our own private or public registry
@@ -169,9 +169,13 @@ docker image tag IMAGE_NAME PRIVATE_REGISTRY_URL/IMAGE_NAME
 docker push PRIVATE_REGISTRY_URL/IMAGE_NAME
 ```
 
+| COMMAND | EFFECT |
+| ------- | ------ |
+| `docker search IMAGE_NAME --limit 2 --filter stars=10` | Search image in registry with output limit and filters to specify populatity |
+
 * **CONTAINER ORCHESTRATION**: A process of maintaining accessability security and reliability of multiple containers
 
-# DOCKER SWARM
+## DOCKER SWARM
 * Combines multiple docker engines together into a single cluster for high availability and load balancing
 * There are swarm managers and worker nodes
 * Master node mantains the cluster state and manages the entire cluster, adding managing nodes, distributing services and responsibility
@@ -275,4 +279,4 @@ docker push PRIVATE_REGISTRY_URL/IMAGE_NAME
 | `docker run -d -p 5000:5000 registry:2`                                | Host docker registry        |
 | `docker build . -t ACCOUNT_CONTEXT_NAME/IMAGE_NAME:TAG`                | Build image and then tag it |
 | `docker tag IMAGE_NAME REGISTRY_IP_HOSTNAME/IMAGE_NAME`                | Tag esisting image          |
-| `docker push REGISTRY_IP_HOSTNAME/ACCOUNT_CONTEXT_NAME/IMAGE_NAME/TAG` | Push the image to registry  |
+| `docker push REGISTRY_IP_HOSTNAME/ACCOUNT_CONTEXT_NAME/IMAGE_NAME:TAG` | Push the image to registry  |
