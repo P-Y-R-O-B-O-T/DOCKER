@@ -159,12 +159,13 @@
 * Copy-On-Write mechanish for layers
 * Docker volume creates virtual buld sturage devices that can be used in the container
 * **Docker Storage Drivers**
-- AUFS
-- ZFS
-- BTRFS
-- Device Mapper
-- Overlay
-- Overlay2
+    - AUFS
+    - ZFS
+    - BTRFS
+    - Device Mapper
+    - Overlay
+    - Overlay2
+
 * Docker volume filename for a container in `/var/lib/docker/volumes` is same as the container ID
 * While recreating a layer if one layer hanges, then the layers after that layer are recreated too as we can't be sure that the rest layers will be the same
 
