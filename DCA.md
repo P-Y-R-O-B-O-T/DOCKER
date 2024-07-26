@@ -8,14 +8,26 @@
     - Containers
     - Networks
     - Volumes
+
 * `Docker Registry` is a public registry for storing and fetching docker images, we also host our own registry
+* Docker uses namespaces for isolation: process ID, network, mount, IPC, Unix timesharing
+* A single process can have multiple process IDs, one for host and one for container
+* All processes are running on host but seperated with namespaces and scopes
+* We can also specify amount of resources that a container can use, this is implemented using `cgroups`
+
+> [!IMPORTANT]
+> ### NAMESPACE and PID
+> * List all processes in container `docker exec CONTAINER_ID ps -eaf`
+> * List processes running in container on host `ps -eaf | grep COMMAND`
+
+
 
 ## DOCKER SERVICE CONFIGURATION
 > [!TIP]
 > Docker listend on a internal unix socket at `/var/run/docker.sock` or `unix:///var/run/docker.sock` for IPC
 
 > [!IMPORTANT]
-> Unix sockets are only accessable on same machine, they can not beaccessed from other machine
+> Unix sockets are only accessable on same machine, they can not be accessed from other machine
 
 | COMMAND | EFFECT |
 | ------- | ------ |
@@ -95,3 +107,23 @@ export AWS_SESSION_TOKEN=SESSION_TOKEN
 > [!TIP]
 > ### CUSTOM LOGGING
 > * For custom logging goto `docs.docker.com/config/containers/logging/` for customizing the default logging options
+
+## IMAGE MANAGEMENT
+> [!TIP]
+> ### INSPECT IMAGE
+> * When we do not know how the docker image was built or how it changed, we can try to inspect using `docker image history IMAGE_NAME`
+> * We can also run `docker image inspect IMAGE_NAME`
+> * If the json data value need to be passed in automation we can do it like `docker image inspect IMAGE_NAME -f '{{.KEY}}'`, see examples
+>     - `docker image inspect IMAGE_NAME -f '{{.Os}} {{.Architecture}} {{.ContainerConfig.ExposedPorts}}'`
+
+> [!TIP]
+> ### SAVE and LOAD IMAGES (INTERNET RESTRICTION)
+> * This can be used in a internet restricted environment, we can create tar files and then extract them back in the environment
+> * `docker image save IMAGE_NAME -o OUTPUT_FILE.tar` creates a tar file of the image
+> * `docker image load -i IMAGE_TAR_FILE` loads the image back into the docker management system
+
+> [!TIP]
+> ### EXPORT and IMPORT CONTAINERS
+> * We can export containers to images and then import them back as images
+> * `docker export CONTAINER_ID > OUTPUT_FILE.tar` creates then tar file for container
+> * `docker image import CONTAINER_TAR_FILE IMAGE_NAME:TAG` create image for the container

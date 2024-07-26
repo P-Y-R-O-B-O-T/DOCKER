@@ -45,7 +45,8 @@
 | `docker rmi IMAGE_ID`                                                     | Remove image                                                                  |
 | `docker pull IMAGE_ID`                                                    | Pull image from remote repository                                             |
 | `docker exec CONTAINER_ID COMMANDS`                                       | Execute a command in a running container                                      |
-| `docker build -t repo/image:tag .`                                        | Build a image with image and tag                                              |
+| `docker build -t ACCOUNT_CONTEXT_NAME/IMAGE_NAME:TAG .`                                        | Build a image with image and tag                                              |
+| `docker build . -f DOCKERFILE_NAME -t ACCOUNT_CONTEXT_NAME/IMAGE_NAME:TAG` | Build a image whose `Dockerfile` filename is different |
 | `docker volume create VOLUME_NAME`                                        | Create a volume                                                               |
 | `docker network create --driver=DRIVER --subnet SUBNET_CIDR NETWORK_NAME` | Create a network                                                              |
 | `docker network ls`                                                       | Show available networks                                                       |
@@ -61,8 +62,12 @@
 > * Remove all volumes: `docker volume rm $(docker volume ls -q)`
 
 > [!tip]
-> * Remove a all docker stopped containers and reclaim space: `docker container prune`
+> * Remove all docker stopped containers and reclaim space: `docker container prune`
 > * We can also make a container autoremove itself after exiting with the `--rm` flag in docker run command
+
+> [!TIP]
+> * Remove all unused docker images
+> * Then to clear up the space run `docker image prune -a`
 
 > [!TIP]
 > * Rename containers: `docker container rename OLD_NAME NEW_NAME`
@@ -86,49 +91,67 @@
 * Creation: `Dockerfile`
 * `Instruction` `Argument` format of file
 * All capitalized words are instructions, rest on the right are arguments
+
+### DOCKERFILES
 * Layered architecture: each instruction line creates a new layer with just the changes from the previous layer
-* **CMD VS ENTRYPOINT**
-- The parameters we specify in run command get totally replaced in `CMD`
-- The parematers we specify in run command get appended to the `ENTRYPOINT` specified in the `Dockerfile`
-- Also we get a flexibility to execute containers with dynamic variables through the run command while using `ENTRYPOINT`
-```
-EXAMPLE
-# CMD
-RUN ["sleep", "10"]
-docker run image sleep 10
+* When we modify the `dockerfile` and rebuild the image, only those instructions (including the added and deleted and modified and the instructions after them) are rebuilt, not from the first one
+> [!IMPORTANT]
+> #### CMD VS ENTRYPOINT
+> * The parameters we specify in run command get totally replaced in `CMD`
+> * The parematers we specify in run command get appended to the `ENTRYPOINT` specified in the `Dockerfile`
+> * Also we get a flexibility to execute containers with dynamic variables through the run command while using `ENTRYPOINT`
+> ```
+> EXAMPLE
+> # CMD
+> RUN ["sleep", "10"]
+> docker run image sleep 10
+> 
+> # ENTRYPOINT
+> ENTRYPOINT ["sleep"]
+> docker run image 10
+> ```
+> * Setting default parameters for all the variables is important to avoid mishaps we can do the following by:
+> ```
+> ENTRYPOINT ["sleep"]
+> CMD ["5"]
+> ```
 
-# ENTRYPOINT
-ENTRYPOINT ["sleep"]
-docker run image 10
-```
-- Setting default parameters for all the variables in imp to avoid mishaps we can do the following by:
-```
-ENTRYPOINT ["sleep"]
-CMD ["5"]
-```
+> [!IMPORTANT]
+> ### IMAGE NAMING CONVENTION
+> * The properformat to refer am image is `REGISTRY_IP_HOSTNAME/ACCOUNT_CONTEXT_NAME/IMAGE_NAME:TAG`
+>     - `REGISTRY_IP_HOSTNAME` refers to the registry from where we fetch the image, default value is `docker.io`
+>     - `ACCOUNT_CONTEXT_NAME` refers to the account on registry that published the image, sometimes we write only the `IMAGE_NAME` - that case is where the `ACCOUNT_CONTEXT_NAME` is same as `IMAGE_NAME`
+>     - `IMAGE_NAME` name of the image
+>     - `TAG` is the version or a specific notation, when we do not specify it it gets default value as `latest`
 
-## DOCKER ENGINE
-* Docker engine is considered as host with docker installed on it
-* `Docker CLI <-> REST API <-> Docker Deamon`
-* We can access remote docker like docker -H=IP_HOSTNAME:2375 DOCKER_COMMAND
+> [!IMPORTANT]
+> ### BUILD CONTEXTS
+> * Remember the `.` that we pass while building the image, this is called the build context
+> * It is the path of directory where the dockerfile is present
+> * When we copy data inside image using dockerfile using `COPY` command we pass an directory or file
+> * What if there are files in the directory that are not needed in building ? We can ignore them using `.dockerignore` file
+> * This can reduce image size and build time
+>
+> ### REMOTE BUILD CONTEXTS
+> * Instead of having a local context, we can have remote context and simplify the process
+> * We can do this for private repositories too, [see here](https://docs.docker.com/build/building/context/#git-repositories) 
+>
+> | COMMAND | EFFECT |
+> | ------- | ------ |
+> | `docker build GITHUB_REPO` | Remote build context |
+> | `docker build GITHUB_REPO#BRANCH_NAME_COMMIT_ID` | Remote build context with branch or commit ID |
+> | `docker -f DOCKERFILE_NAME GITHUB_REPO#BRANCH_NAME:DIRECTORY` | Remote build context with dockerfile path and (branch or commit ID) and directory |
 
-### UNDER THE HOOD
-* Docker uses namespaces for isolation: process ID, network, mount, IPC, Unix timesharing
-* A single process can have multiple process IDs, one for host and one for container
-* All processes are running on host but seperated with namespaces and scopes
-* We can also specify amount of resources that a container can use, this is implemented using `cgroups`
+### BUILD CACHE
+* Each layer is cached while build process and the layers which are not required to rebuild are build from cache while re building process
 
-#### NAMESPACE PID
-```
-# SPIN A NEW CONTAINER
-docker run -d IMAGE
-
-# LIST ALL PROCESSES IN CONTAINER
-docker exec CONTAINER_ID ps -eaf
-
-# LIST THE COMMAND PROCESS RUNNING IN CONTAINER ON HOST
-ps -eaf | grep COMMAND
-```
+> [!TIP]
+> **SENARIO**
+> * Suppose in a Dockerfile we are updating apt and then installing the packages and we are rebuilding after months and we have added an package and need pudated packages in rest of the packages, sisce updating apt repositories is cached and wont be rebuilt and repositories wont be updated
+> * To solve this issue, repository updation and package installation should be part of a single instruction which will force the repositories to be updated 
+> Example : `RUN apt-get update && apt-get install -y PACKAGE1 PACKAGE2`
+> But this creates a build issue too because if we add or delete or modify a package, all packages will be installed again from scratch instead of caching and build will be taking time
+> All instructions that change less frequently should be at top of the Dockerfile and the ones which are changed frequesntly at the bottom of the Dockerfile
 
 ## DOCKER STORAGE
 * `/var/lib/docker/` is the path for docker data like image data, container data etc
@@ -153,29 +176,8 @@ ps -eaf | grep COMMAND
 * If we specify `--network=none` thwy do not get attached to any network
 * All docker containers can resolve each other using the container names, docker has builtin DNS.
 
-## DOCKER REGISTRY
-* A central repository for docker containers
-* Images are pulled from here by default
-* We can also host our own private or public registry
-* Deploying private docker registry
-```
-# DEPLOY
-docker run -d -p 5000:5000 registry registry:2
-
-# TAG IMAGE (with private registry url)
-docker image tag IMAGE_NAME PRIVATE_REGISTRY_URL/IMAGE_NAME
-
-# PUSH IMAGE
-docker push PRIVATE_REGISTRY_URL/IMAGE_NAME
-```
-
-| COMMAND | EFFECT |
-| ------- | ------ |
-| `docker search IMAGE_NAME --limit 2 --filter stars=10` | Search image in registry with output limit and filters to specify populatity |
-
-* **CONTAINER ORCHESTRATION**: A process of maintaining accessability security and reliability of multiple containers
-
 ## DOCKER SWARM
+* **CONTAINER ORCHESTRATION**: A process of maintaining accessability security and reliability of multiple containers
 * Combines multiple docker engines together into a single cluster for high availability and load balancing
 * There are swarm managers and worker nodes
 * Master node mantains the cluster state and manages the entire cluster, adding managing nodes, distributing services and responsibility
@@ -269,14 +271,43 @@ docker push PRIVATE_REGISTRY_URL/IMAGE_NAME
     - Then the testing frameworks test the app and go for rigerous functionality testing in testing env
     - Then the image is published to docker registry or private registry
 
-### DOCKER REGISTRY
+## DOCKER REGISTRY
+* A central repository for docker containers
+* Images are pulled from here by default
+* We can also host our own private or public registry
+* Deploying private docker registry
+```
+# DEPLOY
+docker run -d -p 5000:5000 registry registry:2
+
+# TAG IMAGE (with private registry url)
+docker image tag IMAGE_NAME PRIVATE_REGISTRY_URL/IMAGE_NAME
+
+# PUSH IMAGE
+docker push PRIVATE_REGISTRY_URL/IMAGE_NAME
+```
+
+| COMMAND | EFFECT |
+| ------- | ------ |
+| `docker search IMAGE_NAME --limit 2 --filter stars=10 --filter is-official=true` | Search image in registry with output limit and filters to specify populatity and official image |
+
 * Once an image has been built, we can push it to registry (docker hub or private)
 * All images in self hosted registry are stored in `/var/lib/registry/docker/registry/vx/repositories`
-* Use `konradkleine/docker-registry-frontend:v2` for graphical registry management through browser
+
+> [!TIP]
+> * Use `konradkleine/docker-registry-frontend:v2` for graphical registry management through browser
 
 | COMMAND                                                                | EFFECT                      |
 |------------------------------------------------------------------------|-----------------------------|
 | `docker run -d -p 5000:5000 registry:2`                                | Host docker registry        |
 | `docker build . -t ACCOUNT_CONTEXT_NAME/IMAGE_NAME:TAG`                | Build image and then tag it |
-| `docker tag IMAGE_NAME REGISTRY_IP_HOSTNAME/IMAGE_NAME`                | Tag esisting image          |
+| `docker tag IMAGE_NAME REGISTRY_IP_HOSTNAME/IMAGE_NAME`                | Tag, retag esisting image   |
 | `docker push REGISTRY_IP_HOSTNAME/ACCOUNT_CONTEXT_NAME/IMAGE_NAME:TAG` | Push the image to registry  |
+
+> [!NOTE]
+> * When we tag images, image do not get copied, but not two pointer point to the same image, we can see this when we see same hash id of images
+
+> [!IMPORTANT]
+> ### AUTHENTICATING TO A REGISTRY
+> * Run `docker login REGISTRY_IP_HOSTNAME` and then enter credentials
+> * After this we can run the push command to push the image to registry
