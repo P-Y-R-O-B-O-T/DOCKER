@@ -152,7 +152,7 @@
 > Example : `RUN apt-get update && apt-get install -y PACKAGE1 PACKAGE2`
 > But this creates a build issue too because if we add or delete or modify a package, all packages will be installed again from scratch instead of caching and build will be taking time
 > All instructions that change less frequently should be at top of the Dockerfile and the ones which are changed frequesntly at the bottom of the Dockerfile
-
+>
 >    > [!IMPORTANT]
 >    > * HUHU
 
