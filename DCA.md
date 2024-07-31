@@ -127,3 +127,60 @@ export AWS_SESSION_TOKEN=SESSION_TOKEN
 > * We can export containers to images and then import them back as images
 > * `docker export CONTAINER_ID > OUTPUT_FILE.tar` creates then tar file for container
 > * `docker image import CONTAINER_TAR_FILE IMAGE_NAME:TAG` create image for the container
+
+> [!CAUTION]
+> ## DOCKER DAEMON SECURITY
+> * Secure doker host:
+>     - Disable password authentication
+>     - Enable ssh based authentication
+>     - Selective access to users
+> * Expose daemon to only specific interfaces
+>
+> ### USE CERTIFICATE BASED AUTHENTIATION
+> * This must be always used with SSL encryption ad we setup above
+> * Generate a `ca_cert.pem` and generate certs for out clients (`client.pem` and `clientkey.pem`)
+> * And send all these to CLI client
+> * Add the following to `/etc/docker/daemon.json`
+> ```
+>     "tlsverify": true,
+>     "tlscacert": "TLS_CA_CERT_PATH"
+> ```
+
+> [!CAUTION]
+> ### USER SUCURITY
+> * Docker has root user and many other users
+> * Generally docker runs all the processes inside the container as root user
+> * We can chage that by usng `USER UID` in Dockerfile
+> * Root user within a container is not like root user on host as docker runs containers as limited capabilities
+> * By default these are the linux capabilities `/usr/include/linux/capability.h`
+>
+> | COMMAND | EFFECT |
+> | ------- | ------ |
+> | `docker run --cap-add CAPABILITY IMAGE` | Run container with additional capabilities |
+> | `docker run --cap-drop CAPABILITY` | Run container with even less capabilities |
+> | `docker run --privilaged IMAGE` | Run with all privilages |
+
+### RESOURCE LIMIT
+#### CPU LIMIT
+* Linux uses CFS scheduler and docker uses a realtime scheduler
+| COMMAND | EFFECT |
+| ------- | ------ |
+| `docke run --cpu-share=512 IMAGE` | Run a docker container with relative CPU share quantity, default is `1024` |
+| `docker run --cpuset-cpus=CPUS IMAGE` | If there are many CPUs we can set CPU affinity to container we can give range `START-END` or comma seperated CPU indexes (NOTE: CPU inde start from 0) |
+| `docker run --cpuset-cpus=N_CPU IMAGE`| Use `N` CPUs for the container among the ones whic are not set as affinity to other containers |
+
+* New CPU restiction commands
+
+| `docker run --cpus=COUNT IMAGE` | If we have `N` CPUs, we can say use `COUNT` of them where `0 < COUNT < N`, `COUNT` can be decimal |
+| `docker run update --cpus=COUNT CONTAINER_ID` | Update CPU consumption |
+
+#### MEMORY LIMIT
+* Container using more memory than specified will be killed
+| COMMAND | EFFECT |
+| ------- | ------ |
+| `docker run --memory=MEMORY IMAGE` | Run with memory restrictions `MEMORY` can take values like (`1212m`, `2g`) |
+| `docker run --memory=MEMORY --memory-swap=SWAP_MEM IMAGE` | Run container with swap memory restrictions, `SWAP_MEM` is always the sum of main memory restriction and the amount of swap we want to allot to the container, se can also set unlimited swap by setting value `-1` insteasd of a positive value |
+| `docker run --memory-reservation=MEMORY IMAGE` | Reserve memory for container |
+
+## DISASTER RECOVERY
+* Mainly for docker swarm on docker enterprise
